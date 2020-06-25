@@ -14,42 +14,24 @@ export default class Register extends Component {
       error: '',
     }
     this.handleOnchange = this.handleOnchange.bind(this)
-    this.handOnSubmit = this.handOnSubmit.bind(this)
-    this.handOnSubmit2 = this.handOnSubmit2.bind(this)
+
     this.select = this.select.bind(this)
     this.check = this.check.bind(this)
     this._renderFrom = this._renderFrom.bind(this)
+    this.terminate = this.terminate.bind(this)
   }
   async componentDidMount() {
     const players = await axios.get('/api/players')
     console.log(players)
     this.setState({playersname: players.data})
   }
-
+  terminate() {
+    this.setState({start: false})
+  }
   handleOnchange(event) {
     this.setState({[event.target.name]: event.target.value})
   }
-  async handOnSubmit(event) {
-    event.preventDefault()
-    try {
-      let name = this.state.player1Name.split(' ').join()
-      let player = {name: name}
-      await axios.post('/api/players', player)
-    } catch (error) {
-      console.error(Error)
-    }
-  }
 
-  async handOnSubmit2(event) {
-    try {
-      event.preventDefault()
-      let name = this.state.player2Name.split(' ').join()
-      let player = {name: name}
-      await axios.post('/api/players', player)
-    } catch (error) {
-      console.error(error)
-    }
-  }
   select(event) {
     this.setState({[event.target.name]: event.target.value})
   }
@@ -58,7 +40,9 @@ export default class Register extends Component {
     if (
       this.state.player1Name === this.state.player2Name ||
       this.state.player2Name === '' ||
-      this.state.player1Name === ''
+      this.state.player1Name === '' ||
+      this.state.player1Name.includes(' ') ||
+      this.state.player2Name.includes(' ')
     ) {
       this.setState({start: false})
       this.setState({error: 'there is an error on the input'})
@@ -67,7 +51,7 @@ export default class Register extends Component {
     }
     this.error = setInterval(() => {
       this.setState({error: ''})
-    }, 5000)
+    }, 10000)
   }
 
   componentWillUnmount() {
@@ -112,9 +96,6 @@ export default class Register extends Component {
                 })}
             </select>
           </div>
-          <Button type="submit" onClick={this.handOnSubmit}>
-            Submit for playe1
-          </Button>
         </form>
         {/* {player 2 form } */}
         <form onSubmit={this.handOnSubmit}>
@@ -149,9 +130,6 @@ export default class Register extends Component {
                 })}
             </select>
           </div>
-          <Button type="submit" onClick={this.handOnSubmit2}>
-            Submit for playe2
-          </Button>
         </form>
       </>
     )
@@ -167,7 +145,7 @@ export default class Register extends Component {
             alignItems: 'center',
           }}
         >
-          {this._renderFrom()}
+          {!this.state.start && this._renderFrom()}
           {/* {for error} */}
           {this.state.error !== '' && (
             <p style={{color: 'red'}}>{this.state.error}</p>
@@ -203,17 +181,20 @@ export default class Register extends Component {
               }}
               variant="danger"
               type="button"
+              onClick={this.terminate}
             >
               Terminate Game
             </Button>
           </div>
         </div>
         <hr />_
-        <GameScoreboard
+        {this.state.start && (
+          <GameScoreboard
             player1={this.state.player1Name}
             player2={this.state.player2Name}
             start={this.state.start}
           />
+        )}
       </div>
     )
   }

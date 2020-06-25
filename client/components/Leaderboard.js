@@ -10,29 +10,33 @@ export default class Leaderboard extends Component {
   }
   async componentDidMount() {
     const players = await axios.get('/api/players')
-    console.log(players)
+
     this.setState({players: players.data})
   }
   render() {
+    console.log(this.state.players)
     return (
-      <div style={{width: '50rem', display: 'flex', justifyContent: 'center'}}>
+      <div>
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>#</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Username</th>
+              <th>Player</th>
+              <th>Score</th>
+              <th>Postion</th>
             </tr>
           </thead>
           <tbody>
-            {this.state.players.map((player) => {
-              return (
-                <tr key={player.name}>
-                  <td>{player.name}</td>
-                </tr>
-              )
-            })}
+            {this.state.players
+              .sort((a, b) => b.score - a.score)
+              .map((player, index) => {
+                return (
+                  <tr key={player.name}>
+                    <td>{player.name}</td>
+                    <td>{player.score}</td>
+                    <td>{index + 1}</td>
+                  </tr>
+                )
+              })}
           </tbody>
         </Table>
       </div>

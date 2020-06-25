@@ -2,9 +2,8 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {withRouter, Route, Switch} from 'react-router-dom'
 import PropTypes from 'prop-types'
-import {Login, Signup, UserHome, Register} from './components'
+import {Login, Signup, UserHome, Register, Leaderboard} from './components'
 import {me} from './store'
-import GameScoreboard from './components/gameScoreboard'
 
 /**
  * COMPONENT
@@ -21,7 +20,7 @@ class Routes extends Component {
       <Switch>
         <Switch>
           {/* Routes placed here are only available after logging in */}
-          <Route path="/game" component={GameScoreboard} />
+          <Route path="/leaderboard" component={Leaderboard} />
           <Route exact path="/register" component={Register} />
         </Switch>
       </Switch>

@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 import {Button} from 'react-bootstrap'
+import axios from 'axios'
+import {Link} from 'react-router-dom'
 import Leaderboard from './Leaderboard'
 export default class GameScoreboard extends Component {
   constructor(prop) {
@@ -13,6 +15,7 @@ export default class GameScoreboard extends Component {
     }
     this.getPoints = this.getPoints.bind(this)
     this.showWinner = this.showWinner.bind(this)
+    this.saveWinnerData = this.saveWinnerData.bind(this)
   }
   getPoints(event, player) {
     if (player === 1) {
@@ -22,19 +25,20 @@ export default class GameScoreboard extends Component {
         player1Score: prevPoint + 1,
         switch: this.state.switch - 1,
       })
+
       if (this.state.switch === 0) {
         this.setState({
           serve: this.props.player2,
           switch: 1,
         })
       }
-      console.log(this.state.switch, this.state.serve)
     } else if (player === 2) {
       let prevPoint = this.state.player2Score
       this.setState({
         player2Score: prevPoint + 1,
         switch: this.state.switch - 1,
       })
+
       if (this.state.switch === 0) {
         this.setState({
           serve: this.props.player1,
@@ -42,25 +46,39 @@ export default class GameScoreboard extends Component {
         })
       }
     }
+
     this.showWinner()
   }
 
   showWinner() {
     if (
-      Number(this.state.player1Score) >= 10 &&
-      this.state.player1Score - this.state.player2Score >= 2
+      this.state.player1Score >= 9 &&
+      this.state.player1Score - this.state.player2Score >= 1
     ) {
       this.setState({winner: this.props.player1})
+      this.saveWinnerData()
     } else if (
-      this.state.player2Score >= 10 &&
-      this.state.player2Score - this.state.player1Score >= 2
+      this.state.player2Score >= 9 &&
+      this.state.player2Score - this.state.player1Score >= 1
     ) {
       this.setState({winner: this.props.player2})
+      this.saveWinnerData()
+    }
+  }
+
+  async saveWinnerData() {
+    try {
+      let player1 = {name: this.props.player1, score: this.state.player1Score}
+      let player2 = {name: this.props.player2, score: this.state.player2Score}
+      await axios.post('/api/players', player1)
+      await axios.post('/api/players', player2)
+    } catch (error) {
+      console.error(error)
     }
   }
   render() {
     const {player1, player2, start} = this.props
-    console.log(player1, player2, start)
+
     return (
       <div>
         <div
@@ -157,9 +175,28 @@ export default class GameScoreboard extends Component {
             </div>
           </div>
         </div>
-        {this.state.winner !== '' && <h1>winner: {this.state.winner}</h1>}
-        <Leaderboard />
+        <div
+          style={{
+            marginLeft: '30rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignContent: 'center',
+            width: '50rem',
+          }}
+        >
+          {this.state.winner !== '' && <Winner winner={this.state.winner} />}
+        </div>
       </div>
     )
   }
+}
+
+const Winner = ({winner}) => {
+  return (
+    <div>
+      <h1 style={{marginLeft: '15rem'}}>Winner: {winner}</h1>
+      <Leaderboard />
+    </div>
+  )
 }
