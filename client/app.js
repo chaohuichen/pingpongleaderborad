@@ -1,13 +1,12 @@
 import React from 'react'
-
-import {Navbar} from './components'
+// import 'bootstrap/dist/css/bootstrap.min.css'
+import {Navbar, Register} from './components'
 import Routes from './routes'
 
 const App = () => {
   return (
     <div>
-      <Navbar />
-      <Routes />
+      <Register />
     </div>
   )
 }
